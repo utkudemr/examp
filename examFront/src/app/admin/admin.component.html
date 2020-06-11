@@ -1,0 +1,146 @@
+<div class="container">
+    <div class="bg-primary p-2 text-white row">
+        <h3 class="col-7" style="text-align: center;">{{claim}}</h3>
+        <button class="btn btn-danger btn-sm col-3 ml-2"  (click)="logout()">Çıkış</button>
+    </div>
+    <div class="bg-danger p-2 text-center text-white" *ngIf="errorMessage!=null">
+        {{errorMessage}}
+      </div>
+</div>
+<div class="container-fluid">
+   <div class="row">
+    <div class="col-md-3 mt-2">
+        <div class="container" *ngIf="!isAdmin">
+          <form #form="ngForm"  [formGroup]="demandForm"  (ngSubmit)="demand(form)">
+              <div class="row"><h3>Talep Ekle</h3></div>
+           
+            <div class="form-group ">
+                <label>Açıklama</label>
+                <textarea class="form-control" name="aciklama" [(ngModel)]="aciklama" formControlName="aciklama"   ></textarea>
+              </div>
+            <div class="form-group ">
+                <label>File</label>
+                <input type="file" class="form-control" name="myfile" [(ngModel)]="myfile" formControlName="myfile"  >
+              </div>
+            <div class="text-center">
+              <button class="btn btn-primary ml-2" type="submit">Ekle</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                ...
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="row"><h3>Talep Listele</h3></div>
+          <br>
+           <button class="btn btn-success btn-sm col-5"  (click)="downloadAsPDF()">Export To PDF</button>
+          <select class="col-5 ml-2"  (change)="changeSuit($event)" [value]='true' *ngIf="isAdmin">
+            <option value="true">Olumlu</option>
+            <option value="false">Olumsuz</option>
+            <option value="null" >Değerlendir</option>
+          </select>
+        </div>
+        <br>
+      <div id="content" #content> 
+        
+        <table >
+       
+          <tr>
+            <th>Name-Surname</th>
+            <th>Create Date</th>
+            <th *ngIf="!isAdmin">Review Date</th>
+            <th *ngIf="!isAdmin">State</th>
+            <th *ngIf="isAdmin">
+              
+              
+          </th>
+          </tr>
+       
+     
+          <tr *ngFor="let p of demandList">
+           <td>{{p.name}} {{p.surname}}</td>
+           <td >{{p.createdate | date}}</td>
+           <td *ngIf="!isAdmin">{{p.reviewdate | date}}</td>
+           <td *ngIf="!isAdmin">
+             
+            <ng-container *ngIf="p.state === true;else second">Olumlu</ng-container>
+              <ng-template #second>
+                  <ng-container *ngIf="p.state === false;else third">Olumsuz</ng-container>
+              </ng-template>
+              <ng-template #third></ng-template>
+            </td>
+           <td *ngIf="isAdmin"><button (click)="viewDetail(p)" class="btn btn-light btn-sm">-></button></td>
+          </tr>
+       
+      </table></div></div>
+      <div class="col-md-4 mt-2" *ngIf="detailForm" id="talipDetay" >
+        <div class="row"><h3>Talep Detay</h3></div>
+        <br>
+        <div class="">
+          
+              <div class="row">
+            <div class="form-group col-md-5" >
+              <label>Ad</label>
+              <br>
+              <label [attr.disabled]="inputEnabled==true ? '' : null" class="form-control">{{selectedDemand.name}}</label>
+            </div>
+            <div class="form-group col-md-5">
+              <label>Soyad</label>
+              <label [attr.disabled]="inputEnabled==true ? '' : null" class="form-control"   >{{selectedDemand.surname}}</label>
+            </div>
+            <div class="form-group col-md-12" [attr.disabled]="inputEnabled">
+                <label>Açıklama</label>
+                <textarea class="form-control"  disabled>{{selectedDemand.aciklama}}</textarea>
+              </div>
+            <div class="form-group col-md-12" [attr.disabled]="inputEnabled==true ? '' : null">
+                <label>File</label>
+                <label  class="form-control" >{{selectedDemand.file}} </label>
+              </div>
+              <div class="form-group col-md-12" [attr.disabled]="inputEnabled==true ? '' : null">
+                <label>Create Date</label>
+                <label  class="form-control" >{{selectedDemand.createdate | date}} </label>
+              </div>
+              <div class="form-group col-md-12" [attr.disabled]="inputEnabled==true ? '' : null">
+                <label>Review Date</label>
+                <label  class="form-control" >{{selectedDemand.reviewdate | date}} </label>
+              </div>
+            </div>
+            
+            <form #form2="ngForm"  [formGroup]="admindemandForm"  (ngSubmit)="admindemand(form2)" >
+            <div class="form-group col-md-12" >
+                <label>State</label>
+                <select [attr.disabled]="inputEnabled==true ? '' : null" class="form-control"  name="state" [(ngModel)]="state" formControlName="state" [value]='selectedDemand.state'>
+                  <option value="true">Olumlu</option>
+                  <option value="false">Olumsuz</option>
+                </select>
+            </div>
+            <div class="form-group col-md-12" >
+              <label>Admin Comment</label>
+              <textarea [attr.disabled]="inputEnabled==true ? '' : null" class="form-control" name="adminaciklama" [(ngModel)]="adminaciklama" formControlName="adminaciklama" [value]="selectedDemand.adminaciklama">{{selectedDemand?.adminaciklama}}</textarea>
+            </div>
+            <div class="text-center" *ngIf="adminRewiewForm" [attr.disabled]="inputEnabled">
+              <button [disabled]="inputEnabled" class="btn btn-primary ml-2" type="submit">Ekle</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
